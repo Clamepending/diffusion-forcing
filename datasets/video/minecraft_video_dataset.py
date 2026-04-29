@@ -22,6 +22,7 @@ class MinecraftVideoDataset(BaseVideoDataset):
 
     def download_dataset(self) -> Sequence[int]:
         from internetarchive import download
+        import shutil
 
         part_suffixes = [
             "aa",
@@ -36,6 +37,17 @@ class MinecraftVideoDataset(BaseVideoDataset):
             "aj",
             "ak",
         ]
+        
+        # Check if extraction is already complete
+        if (self.save_dir / "training").exists() and (self.save_dir / "validation").exists():
+            print("Dataset already extracted, skipping extraction...")
+            # Clean up leftover minecraft directory if it exists
+            minecraft_dir = self.save_dir / "minecraft"
+            if minecraft_dir.exists():
+                print("Removing leftover minecraft directory...")
+                shutil.rmtree(minecraft_dir)
+            return
+        
         for part_suffix in part_suffixes:
             identifier = f"minecraft_marsh_dataset_{part_suffix}"
             file_name = f"minecraft.tar.part{part_suffix}"
